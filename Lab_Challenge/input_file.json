@@ -1,0 +1,14 @@
+{
+ "airfoil": { 
+     "type": "2412",
+     "open_trailing_edge": false
+     },
+     
+ "mesh": {
+     "surface_cells": 200,
+     "wake_cells": 100,
+     "radial_cells": 100,
+     "radial_distance": 10,
+     "radial_growth": 1.1
+     }
+}
