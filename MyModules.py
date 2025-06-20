@@ -1,6 +1,7 @@
 from matplotlib import rcParams
 from cycler import cycler
 import numpy as np
+import csv
 
 class MyPlot:
     def __init__(self):
@@ -13,13 +14,14 @@ class MyPlot:
             'legend.fontsize': 14,
             'xtick.labelsize': 18,
             'ytick.labelsize': 18,
+            'text.usetex' : True,
             
-            'lines.linewidth': 2.5,
+            'lines.linewidth': 1.5,
             'axes.linewidth': 2,
             'axes.prop_cycle': cycler(color=['black']),
             
             'figure.figsize': (8, 6),
-            'savefig.dpi': 300,
+            'savefig.dpi': 600,
             'figure.dpi': 100,
             
             'axes.grid': True,
@@ -68,7 +70,7 @@ def jacobian(f, x, h=1e-3):
             J[j][i] = (fp[j][0] - fm[j][0])/(2*h) #central differencing
     return J
         
-def multivariable_newtons_method(f, x):
+def multivariable_newtons_method(f, x, tol=1e-10):
     #currently, this function only allows for a symmetric Jacobian (so len(x)=len(f(x)))
     #in the future, I could try and apply a pseudo inverse or something
     #I also need to update the convergence criteria
@@ -90,11 +92,33 @@ def multivariable_newtons_method(f, x):
         resulting residuals.
     '''
     #do multivariable Newton's method
-    for _ in range(4):
+    r=1000
+    iterations = 1
+    while r > tol:
+        
         J = jacobian(f, x)
     
         x = x - np.linalg.inv(J) @ f(x)
 
-    r = f(x)
-    return x, r
+        r = abs(f(x))
+        iterations+=1
+    return x, r, iterations
+
+def read_csv(input_csv):
+    '''
+    
+    Parameters
+    ----------
+    input_csv : string
+        .csv file that you want to read into python
+
+    Returns
+    -------
+    vel : list
+        list of csv data with 1 cell per entry in list
+    '''
+    with open(input_csv, newline='') as file: #flowfield.csv
+        reader = csv.reader(file)
+        vel = [row for row in reader]
+    return vel
 
