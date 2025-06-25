@@ -12,8 +12,8 @@ end interface
 
 contains
 function jacobian(f, x, h_offset) result(J)
-    procedure(jacobian_function) :: f
-    real(dp), dimension(:,:), intent(in) :: x
+    procedure(jacobian_function) :: f !function names
+    real(dp), dimension(:,:), intent(in) :: x !nx1 array describing current state
     real(dp), dimension(:,:), allocatable :: J, eps
     real(dp), intent(in), optional :: h_offset
     real(dp), dimension(:,:), allocatable :: fp, fm
