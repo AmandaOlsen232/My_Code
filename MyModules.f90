@@ -66,7 +66,8 @@ program Main
 use my_functions
 implicit none
 
-
+!Jacobian Function example using the test function and 3x1 array
+!Prints out the Jacobian to the console
 real(dp), dimension(:,:), allocatable :: J, x
 integer :: i
 
