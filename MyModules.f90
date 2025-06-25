@@ -11,6 +11,16 @@ abstract interface
 end interface
 
 contains
+
+function test(x) result(y)
+    real(dp), dimension(:,:), allocatable :: y
+    real(dp), dimension(:,:), intent(in) :: x
+    allocate(y(3,1))
+    y(1,1) = x(1,1) + x(2,1) + x(3,1)
+    y(2,1) = x(1,1)*2 + x(2,1)*2 + x(3,1)*2
+    y(3,1) = x(1,1)**2 + x(2,1)**2 + x(3,1)**2
+end function test
+
 function jacobian(f, x, h_offset) result(J)
     procedure(jacobian_function) :: f !function names
     real(dp), dimension(:,:), intent(in) :: x !nx1 array describing current state
@@ -54,7 +64,20 @@ end module my_functions
 
 program Main
 use my_functions
+implicit none
 
+
+real(dp), dimension(:,:), allocatable :: J, x
+integer :: i
+
+allocate(x(3,1))
+
+x = reshape([1.0, 2.0, 3.0], shape(x))
+J = jacobian(test, x)
+
+do i=1, 3
+    write(*,*) J(i,:)
+end do
 
 
 
