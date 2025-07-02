@@ -93,15 +93,13 @@ def multivariable_newtons_method(f, x, tol=1e-10):
     '''
     #do multivariable Newton's method
     r=1000
-    iterations = 1
+    iterations = 0
     while r > tol:
-        fx = f(x)
-        
         J = jacobian(f, x)
     
-        x = x - np.linalg.inv(J) @ fx
+        x = x - np.linalg.inv(J) @ f(x)
 
-        r = abs(fx)
+        r = abs(f(x))
         iterations+=1
     return x, r, iterations
 
