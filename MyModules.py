@@ -95,12 +95,13 @@ def multivariable_newtons_method(f, x, tol=1e-10):
     r=1000
     iterations = 1
     while r > tol:
+        fx = f(x)
         
         J = jacobian(f, x)
     
-        x = x - np.linalg.inv(J) @ f(x)
+        x = x - np.linalg.inv(J) @ fx
 
-        r = abs(f(x))
+        r = abs(fx)
         iterations+=1
     return x, r, iterations
 
@@ -121,4 +122,3 @@ def read_csv(input_csv):
         reader = csv.reader(file)
         vel = [row for row in reader]
     return vel
-
