@@ -70,7 +70,7 @@ def jacobian(f, x, h=1e-3):
             J[j][i] = (fp[j][0] - fm[j][0])/(2*h) #central differencing
     return J
         
-def multivariable_newtons_method(f, x, tol=1e-10):
+def multivariable_newtons_method(f, x, it=4):
     #currently, this function only allows for a symmetric Jacobian (so len(x)=len(f(x)))
     #in the future, I could try and apply a pseudo inverse or something
     #I also need to update the convergence criteria
@@ -94,7 +94,7 @@ def multivariable_newtons_method(f, x, tol=1e-10):
     #do multivariable Newton's method
     r=1000
     iterations = 0
-    while r > tol:
+    for _ in range(it):
         J = jacobian(f, x)
     
         x = x - np.linalg.inv(J) @ f(x)
