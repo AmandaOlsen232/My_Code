@@ -15,6 +15,7 @@ class MyPlot:
             'xtick.labelsize': 18,
             'ytick.labelsize': 18,
             'text.usetex' : True,
+            "text.latex.preamble": r"\usepackage{amsmath}",
             
             'lines.linewidth': 1.5,
             'axes.linewidth': 2,
