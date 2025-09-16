@@ -2,6 +2,8 @@ from matplotlib import rcParams
 from cycler import cycler
 import numpy as np
 import csv
+import os 
+import math 
 
 class MyPlot:
     def __init__(self):
@@ -15,7 +17,8 @@ class MyPlot:
             'xtick.labelsize': 18,
             'ytick.labelsize': 18,
             'text.usetex' : True,
-            "text.latex.preamble": r"\usepackage{amsmath}",
+            # "text.latex.preamble": r"\usepackage{amsmath}",
+            "text.latex.preamble": r"\usepackage{lmodern}\usepackage{amsmath}",
             
             'lines.linewidth': 1.5,
             'axes.linewidth': 2,
@@ -71,7 +74,7 @@ def jacobian(f, x, h=1e-3):
             J[j][i] = (fp[j][0] - fm[j][0])/(2*h) #central differencing
     return J
         
-def multivariable_newtons_method(f, x, it=4):
+def multivariable_newtons_method(f, x, tol=1e-7, max_it=50):
     #currently, this function only allows for a symmetric Jacobian (so len(x)=len(f(x)))
     #in the future, I could try and apply a pseudo inverse or something
     #I also need to update the convergence criteria
@@ -93,14 +96,16 @@ def multivariable_newtons_method(f, x, it=4):
         resulting residuals.
     '''
     #do multivariable Newton's method
-    r=1000
+    max_r=1000
     iterations = 0
-    for _ in range(it):
+    # for _ in range(it):
+    while (max_r > tol) and (iterations < max_it):
         J = jacobian(f, x)
     
         x = x - np.linalg.inv(J) @ f(x)
 
         r = abs(f(x))
+        max_r = max(r)
         iterations+=1
     return x, r, iterations
 

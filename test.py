@@ -10,3 +10,4 @@ def f(x):
 x = np.array([1, 2, 3]).reshape(3,1)
 
 J = my.jacobian(f, x)
+# test = my.multivariable_newtons_method(f, x)
