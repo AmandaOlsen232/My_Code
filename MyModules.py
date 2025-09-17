@@ -101,10 +101,10 @@ def multivariable_newtons_method(f, x, tol=1e-7, max_it=50):
     # for _ in range(it):
     while (max_r > tol) and (iterations < max_it):
         J = jacobian(f, x)
-    
-        x = x - np.linalg.inv(J) @ f(x)
+        r = f(x)
+        x = x - np.linalg.inv(J) @ r
 
-        r = abs(f(x))
+        r = abs(r)
         max_r = max(r)
         iterations+=1
     return x, r, iterations
