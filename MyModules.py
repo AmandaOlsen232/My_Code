@@ -1,4 +1,5 @@
 from matplotlib import rcParams
+import matplotlib.pyplot as plt 
 from cycler import cycler
 import numpy as np
 import csv

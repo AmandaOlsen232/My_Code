@@ -48,15 +48,16 @@ function jacobian(f, x, h_offset) result(J)
     eps = 0.0
 
     !numerically solve for the jacobian
-    fx: do k=1, dim_fx
+    ! fx: do k=1, dim_fx
         in: do i=1, dim_x
+        write(*,*) "Jacobian", i
             eps = 0.0
             eps(i) = h
             fp = f(x+eps)
             fm = f(x-eps)
-            J(k,i) = (fp(k) - fm(k))/(2.*h)
+            J(:,i) = (fp - fm)/(2.*h)
         end do in
-    end do fx
+    ! end do fx
     
 end function jacobian
 
@@ -135,12 +136,12 @@ integer :: i, n
 
 allocate(x(3))
 x = [1., 2., 3.]
-! J = jacobian(test, x)
-hello = multivariable_newtons_method(test, x)
+J = jacobian(test, x)
+! hello = multivariable_newtons_method(test, x)
 
-
+! write(*,*) J
 do i=1, 3
-    write(*,*) hello(i)
+    write(*,*) J(i,:)
 end do
 
 
