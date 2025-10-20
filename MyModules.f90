@@ -2,6 +2,7 @@ module my_functions
     use math_m
 implicit none
 
+integer :: failed = 0
 
 abstract interface
     function jacobian_function(x) result(y)
@@ -40,28 +41,29 @@ function jacobian(f, x, h_offset) result(J)
 
     !get the dimension of input and output vectors, allocate jacobian size
     dim_x = size(x)
-    dim_fx = size(f(x))
+    dim_fx = 6!size(f(x))
     
     allocate(J(dim_fx, dim_x))
     allocate(eps(dim_x))
+    allocate(fp(dim_fx), fm(dim_fx))
     J = 0.0
     eps = 0.0
 
     !numerically solve for the jacobian
-    ! fx: do k=1, dim_fx
-        in: do i=1, dim_x
-        write(*,*) "Jacobian", i
-            eps = 0.0
-            eps(i) = h
-            fp = f(x+eps)
-            fm = f(x-eps)
-            J(:,i) = (fp - fm)/(2.*h)
-        end do in
-    ! end do fx
+    in: do i=1, dim_x
+        ! write(*,*) "Jacobian", i
+        eps = 0.0
+        eps(i) = h
+        fp = f(x+eps)
+        fm = f(x-eps)
+        J(:,i) = (fp - fm)/(2.*h)
+        if (failed==1) exit
+    end do in
     
 end function jacobian
 
-function multivariable_newtons_method(f, x, tol, max_it) result(G)
+function multivariable_newtons_method(f, x, tol, max_it, relax_factor, verbose) result(G)
+    !for a given function and initial input, solve for the x required to make the function equal zero
     implicit none 
     procedure(jacobian_function) :: f
     real, dimension(:), intent(in) :: x 
@@ -69,11 +71,16 @@ function multivariable_newtons_method(f, x, tol, max_it) result(G)
     real :: tolerance 
     integer, intent(in), optional :: max_it 
     integer :: m_it
+    real, intent(in), optional :: relax_factor
+    real :: relax 
+    logical, intent(in), optional :: verbose
+    logical :: verb
     real, dimension(:), allocatable :: G
 
     real, dimension(:,:), allocatable :: J
+    integer :: dim_x, dim_fx
     integer, dimension(:), allocatable :: o
-    integer :: n, er, k
+    integer :: n, er
     real, dimension(:), allocatable :: delta_G, R
     integer :: iterations 
     real :: max_r 
@@ -82,7 +89,7 @@ function multivariable_newtons_method(f, x, tol, max_it) result(G)
     if (present(tol)) then
         tolerance = tol 
     else
-        tolerance = 1.0e-7
+        tolerance = 1.0e-9
     end if
 
     if (present(max_it)) then
@@ -91,32 +98,65 @@ function multivariable_newtons_method(f, x, tol, max_it) result(G)
         m_it = 50
     end if
 
+    if (present(relax_factor)) then 
+        relax = relax_factor
+    else 
+        relax = 1.0 
+    end if 
+
+    if (present(verbose)) then 
+        verb = verbose
+    else 
+        verb = .false. 
+    end if 
+
     !allocate memory for o and delta_G
     n = size(x)
+    dim_x = size(x)
+    dim_fx = size(f(x))
+
     allocate(o(n))
     allocate(delta_G(n))
+    allocate(G(n))
+    allocate(J(dim_fx, dim_x))
+    allocate(R(dim_fx))
 
+    if (verb .eqv. .true.) then
+        write(*,*) "iteration   max_R"
+        write(*,*) "___________________________________"
+    end if
+    
     !run the while loop
     G = x
     max_r = 1000.
-    iterations = 0
+    iterations = 1
     do while ((max_r > tolerance) .and. (iterations < m_it))
-        
+        ! write(*,*) "iteration: ", iterations
         J = jacobian(f, G)
+        if (failed == 1) then
+            write(*,*) "Jacobian Calculation Failed"
+            exit
+        end if
         R = -1.*f(G)
 
-        call ludecomp(J, n, 1.0e-5, o, er)
+        call ludecomp(J, n, 1.0e-5, o, er) !could raise up tolerance on this
         if (er == 0) then
             call substitute(J, o, n, R, delta_G)
         else 
-            write(*,*) "Unable to compute. Try lowering the tolerance"
+            write(*,*) "Unable to compute LU Decomposition"
         end if 
-        G = G + delta_G
+        G = G + relax*delta_G
         
         R = abs(R)
         max_r = maxval(R)
         iterations = iterations + 1
+
+        if (verb .eqv. .true.) then
+            write(*,*) iterations, max_r
+        end if
+    
     end do
+    if (iterations == m_it) failed = 1 
 
 end function multivariable_newtons_method
 
