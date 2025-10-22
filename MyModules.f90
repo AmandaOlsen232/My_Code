@@ -166,7 +166,7 @@ real, dimension(:), allocatable :: hello, x
 integer :: i, n
 
 allocate(x(3))
-x = [1., 2., 3.]
+x = [1., 4., 3.]
 ! J = jacobian(test, x)
 hello = multivariable_newtons_method(test, x, verbose=.true.)
 x = test(hello)
