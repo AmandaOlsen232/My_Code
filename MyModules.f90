@@ -1,5 +1,7 @@
 module my_functions
-    use math_m
+    ! use math_m
+    use linalg_mod 
+
 implicit none
 
 
@@ -74,11 +76,11 @@ function multivariable_newtons_method(f, x, tol, max_it, relax_factor, verbose) 
     logical :: verb
     real, dimension(:), allocatable :: G
 
-    real, dimension(:,:), allocatable :: J
+    real, dimension(:,:), allocatable :: J, J_inv
     integer :: dim_x, dim_fx
     integer, dimension(:), allocatable :: o
     integer :: n, er
-    real, dimension(:), allocatable :: delta_G, R
+    real, dimension(:), allocatable :: delta_G, R, test_dG
     integer :: iterations 
     real :: max_r 
 
@@ -116,7 +118,9 @@ function multivariable_newtons_method(f, x, tol, max_it, relax_factor, verbose) 
     allocate(delta_G(n))
     allocate(G(n))
     allocate(J(dim_fx, dim_x))
-    allocate(R(dim_fx))
+    allocate(J_inv(dim_fx, dim_x))
+    allocate(R(dim_x))
+    allocate(test_dG(dim_x))
 
     if (verb .eqv. .true.) then
         write(*,*) "Newton Solver: iteration   max_R"
@@ -132,12 +136,18 @@ function multivariable_newtons_method(f, x, tol, max_it, relax_factor, verbose) 
         J = jacobian(f, G)
         R = -1.*f(G)
 
-        call ludecomp(J, n, 1.0e-5, o, er) !could raise up tolerance on this
-        if (er == 0) then
-            call substitute(J, o, n, R, delta_G)
-        else 
-            write(*,*) "Unable to compute LU Decomposition"
-        end if 
+        !! These lines use Zach's math_m module
+        ! call ludecomp(J, n, 1.0e-5, o, er) !could raise up tolerance on this
+        ! if (er == 0) then
+        !     call substitute(J, o, n, R, delta_G)
+        ! else 
+        !     write(*,*) "Unable to compute LU Decomposition"
+        ! end if 
+
+        !this 2 lines use linalg.f90
+        call matinv(dim_fx, J, J_inv)
+        delta_G = matmul(J_inv, R)
+ 
         G = G + relax*delta_G
         
         R = abs(R)

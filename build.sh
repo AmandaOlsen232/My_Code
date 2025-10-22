@@ -1,1 +1,1 @@
-gfortran -fdefault-real-8 point_m.f90 vector_m.f90 math_m.f90 MyModules.f90
+gfortran -fdefault-real-8 linalg.f90 point_m.f90 vector_m.f90 math_m.f90 MyModules.f90
